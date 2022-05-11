@@ -2,12 +2,7 @@ import os
 
 import yaml
 from celery.app import task
-
 import neat
-
-
-
-
 
 
 def load_config():
