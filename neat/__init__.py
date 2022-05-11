@@ -1,5 +1,8 @@
 import os
 
 project_dir = os.path.dirname(__file__)
-config = os.path.join(project_dir, 'conf/neat.yaml')
+neat_conf = os.path.join(project_dir, 'conf/neat.yaml')
+server_conf = os.path.join(project_dir, 'conf/server.yaml')
+env_path = os.path.join(project_dir, 'tmp')
+script_path = os.path.join(project_dir, 'script')
 #celery_config = 'neat.conf.celery_config.py'

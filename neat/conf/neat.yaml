@@ -5,21 +5,12 @@ neat:
       hc:
         - 39.135.239.39
         - 111.56.121.253
+    #only support for shell
     argument:
       - 117.144.106.70:
-          - mysql_ip: 10.183.29.1
+          mysql_ip: 10.183.29.1
+          abc: bcd
       - 39.135.239.39:
-          - mysql_ip: 39.135.239.40
+          mysql_ip: 39.135.239.40
       - 111.56.121.253:
-          - mysql_ip: 111.56.121.254
-    server:
-      - ip: 117.144.106.70
-        user: cdn
-        password: Sabc
-        port: 43963
-        position: shanghai
-      - ip: 39.135.239.39
-        user: cdn
-        password: abc
-        port: 22
-        position: beijing
+          mysql_ip: 111.56.121.254

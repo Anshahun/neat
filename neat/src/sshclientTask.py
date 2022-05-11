@@ -13,14 +13,13 @@ class SshClientTask(celery.Task):
     retry_jitter = True
     serializer = 'pickle'
 
-
-
     @property
     def cache(self):
         if self._cache is None:
             print('make cache')
             self._cache = ['a', 'b', 'c']
         return self._cache
+
 
     def test(self, args):
         print('test')
