@@ -1,0 +1,31 @@
+<!doctype html>
+<title>{% block title %}{% endblock %}</title>
+<link rel="stylesheet" href="https://unpkg.com/normalize.css/normalize.css" type="text/css">
+<link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+{% block script %}{% endblock %}
+
+<style>
+    #submit {background-color:#009688; color:#f9f9f9;}
+    .errors {color:#f44336;}
+</style>
+
+<body>
+    <header>
+        {% block header %}{% endblock %}
+    </header>
+
+    {% for message in get_flashed_messages() %}
+        <div class="flash">{{ message }}</div>
+    {% endfor %}
+
+    {% block content %}{% endblock %}
+    <footer>
+        <hr>
+        <div style="text-align:right">
+            <p><small>power by ljy</small></p>
+        </div>
+    </footer>
+</body>
+
+

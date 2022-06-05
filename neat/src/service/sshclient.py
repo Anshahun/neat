@@ -9,6 +9,7 @@ class SshClient(object):
         self.host = host
         self.timeout = timeout
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        print(f'connected {host}')
         self.client.connect(hostname=host, port=port, username=user, password=password,
                             timeout=timeout)
 
