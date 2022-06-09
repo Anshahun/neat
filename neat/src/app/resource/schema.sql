@@ -26,16 +26,17 @@ create table if not exists tasks(
     notes text
 );
 
-insert into servers(ip,port,user,password,position) values ('172.16.135.186',22,'breath','naxiehuaer','test');
+insert into servers(ip,port,user,password,position) values ('192.168.28.131',22,'breath','naxiehuaer','test');
 insert into servers(ip,port,user,password,position) values ('172.16.135.184',22,'breath','naxiehuaer','test');
 
 insert into groups(name, server_id) values ('group1', 1);
 insert into groups(name, server_id) values ('group1', 2);
 insert into groups(name, server_id) values ('group2', 1);
 
+
 insert into tasks(name, command, env, script, notes) values ('echo','sh test1.sh',
-'/Users/breath/PycharmProjects/neat/neat/src/app/tasks/echo/env/echo.yaml',
-'/Users/breath/PycharmProjects/neat/neat/src/app/tasks/echo/bin/test1.sh', 'for test');
+'D:\\workspace\\neat\\neat\\src\\app\\tasks\\echo\\env\\echo.yaml',
+'D:\\workspace\\neat\\neat\\src\\app\\tasks\\echo\\bin\\test1.sh', 'for test');
 
 
 

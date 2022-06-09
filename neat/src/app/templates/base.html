@@ -3,7 +3,8 @@
 <link rel="stylesheet" href="https://unpkg.com/normalize.css/normalize.css" type="text/css">
 <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-{% block script %}{% endblock %}
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="{{ url_for('static', filename='jquery.timer.js') }}"></script>
 
 <style>
     #submit {background-color:#009688; color:#f9f9f9;}
@@ -26,6 +27,8 @@
             <p><small>power by ljy</small></p>
         </div>
     </footer>
+
+    {% block script %}{% endblock %}
 </body>
 
 

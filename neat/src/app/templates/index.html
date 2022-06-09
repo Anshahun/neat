@@ -4,10 +4,6 @@
   neat
 {% endblock %}
 
-{% block script %}
-
-{% endblock %}
-
 {% block header %}
   <h1>想你所想</h1>
 {% endblock %}
@@ -16,16 +12,26 @@
   <a href="{{ url_for('portal.create_task') }}" >添加任务</a>
 
   {% from "_formhelpers.html" import render_field %}
-  <form method="post" enctype="multipart/form-data">
+  <form method="post" id="service_form" >
     {{ form.csrf_token }}
     {{ render_field(form.task) }}
     {{ render_field(form.server) }}
     {{ render_field(form.group) }}
     <p>
-      <input type="submit" value="提交" id="submit">
+      <input type="button" value="提交" id="submit">
       <input type="reset" value="重置">
     </p>
   </form>
+
+  <p>
+    <label for="command">命令</label>
+    <input type="text" id='command' name="command">
+  </p>
+  <p>
+    <input type="button" value="提交" id="submit_command">
+  </p>
+
+  <textarea id="result" cols=48 rows=8 readonly></textarea>
 
   <table>
     <thead>
@@ -50,4 +56,55 @@
       {% endfor %}
     </tbody>
   </table>
+{% endblock %}
+
+{% block script %}
+  <script>
+    function addSubmit() {
+      $.ajax({
+        method: 'POST',
+        url: {{ url_for('portal.submit_task')|tojson }},
+        data: $('#service_form').serialize()
+      }).done(addShow);
+    }
+
+    function addShow(data) {
+      celery_task_id = data.celery_task_id
+      autoPlay(celery_task_id)
+    }
+
+    function autoPlay(celery_task_id){
+      time = setInterval(function(){
+        $.ajax({
+          url: {{ url_for('portal.monitor_task')|tojson }},
+          data: {"celery_task_id": celery_task_id},
+          type: "POST",
+          success: function(obj){
+            $('#result').append("taskid: "+celery_task_id+", status: "+obj.status+"\n");
+            if (obj.status=="SUCCESS"){
+              $('#result').append("exit_code: "+obj.exit_code+"\n")
+              $('#result').append("stdout: "+obj.stdout+"\n")
+              $('#result').append("stderr: "+obj.stderr+"\n")
+              clearInterval(time), function(){
+　　            autoPlay();
+　　           }
+            }else if(obj.status=='FAILURE'){
+              $('#result').append("traceback: "+obj.traceback+"\n")
+              clearInterval(time),function(){
+　　            autoPlay();
+　　           }　　
+            }else{
+              $('#result').append("result: "+obj.result+"\n")
+            }
+
+          }
+        })
+      },1000
+      );
+    }
+
+    $("#submit").click(addSubmit)
+
+
+  </script>
 {% endblock %}
