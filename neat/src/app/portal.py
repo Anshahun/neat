@@ -1,3 +1,4 @@
+import yaml
 from celery import states
 from celery.canvas import group
 from celery.result import GroupResult
@@ -9,7 +10,6 @@ from neat.src.app.moudles import ServiceTask, Server
 from neat.src.app.validate import form
 from neat.src.app.validate.form import TaskForm
 from neat.src.service import app
-from neat.src.service.startup import load_config
 
 bp = Blueprint('portal', __name__)
 
@@ -44,6 +44,11 @@ def monitor_task():
     return {'results': post}
 
 
+def __load_config(conf):
+    with open(conf) as f:
+        conf = yaml.full_load(f.read())
+        return conf
+
 def __generate_task_result(res: GroupResult):
     for result in res.results:
         if result.status == states.FAILURE:
@@ -64,7 +69,7 @@ def __generate_env_command(env):
 def __generate_task_env(task, query_servers):
     for query_server in query_servers:
         server = Server(query_server['ip'], query_server['port'], query_server['user'], query_server['password'])
-        env_conf = load_config(task['env'])[query_server['ip']]
+        env_conf = __load_config(task['env'])[query_server['ip']]
         env_command = ' && '.join(list(__generate_env_command(env_conf)))
         yield {'server': server, 'env_conf': env_conf, 'env_command': env_command}
 
