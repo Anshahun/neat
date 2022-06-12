@@ -81,26 +81,29 @@
           data: {"celery_task_id": celery_task_id},
           type: "POST",
           success: function(obj){
-            $('#result').append("taskid: "+celery_task_id+", status: "+obj.status+"\n");
-            if (obj.status=="SUCCESS"){
-              $('#result').append("exit_code: "+obj.exit_code+"\n")
-              $('#result').append("stdout: "+obj.stdout+"\n")
-              $('#result').append("stderr: "+obj.stderr+"\n")
-              clearInterval(time), function(){
-　　            autoPlay();
-　　           }
-            }else if(obj.status=='FAILURE'){
-              $('#result').append("traceback: "+obj.traceback+"\n")
-              clearInterval(time),function(){
-　　            autoPlay();
-　　           }　　
-            }else{
-              $('#result').append("result: "+obj.result+"\n")
+            for (result of obj.results){
+              $('#result').append("taskid: "+celery_task_id+" status: "+result.status+"\n");
+              if (result.status=="SUCCESS"){
+                $('#result').append("exit_code: "+result.exit_code+"\n")
+                $('#result').append("stdout: "+result.stdout+"\n")
+                $('#result').append("stderr: "+result.stderr+"\n")
+                clearInterval(time), function(){
+  　　            autoPlay();
+  　　           }
+              }else if(result.status=='FAILURE'){
+                $('#result').append("traceback: "+result.traceback+"\n")
+                clearInterval(time),function(){
+  　　            autoPlay();
+  　　           }　　
+              }else{
+                $('#result').append("result: "+result.result.progress+"\n")
+              }
             }
-
+            var textarea = document.getElementById('result');
+            textarea.scrollTop = textarea.scrollHeight;
           }
         })
-      },1000
+      },5000
       );
     }
 

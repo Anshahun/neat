@@ -15,15 +15,15 @@ class SshClient(object):
 
     def command(self, cmd_command):
         stdin, stdout, stderr = self.client.exec_command(cmd_command)
-        stderr_print = str(stderr.read(), 'utf-8')
+        stderr_print = stderr.read()
         stdout_print = str(stdout.read(), 'utf-8')
         status = stdout.channel.recv_exit_status()
-        status_log = f"[{self.host}]-exit_status: {status}"
+        status_log = f"exit_status: {status}"
         print(status_log)
         stderr_log = ''
         stdout_log = ''
         if len(stderr_print) > 0:
-            stderr_log = f"[{self.host}]-stderr: {str(stderr.read(), 'utf-8')}"
+            stderr_log = f"stderr: {stderr_print.decode()}"
             print(stderr_log)
         if len(stdout_print) > 0:
             stdout_log = f"########### [{self.host}]-stdout ###########\n {str(stdout.read(), 'utf-8')}"

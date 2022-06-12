@@ -1,5 +1,6 @@
 from celery import states
-from celery.result import AsyncResult
+from celery.canvas import Signature, group
+from celery.result import AsyncResult, GroupResult
 from flask import Blueprint, render_template, request, redirect, url_for
 from werkzeug.utils import secure_filename
 from neat.src.app import db
@@ -27,59 +28,65 @@ def submit_task():
     servers = db.query_db('select id, ip from servers')
     groups = db.query_db('select name,group_concat(server_id) as member from groups group by name order by name')
     service_form = form.get_service_form(tasks, servers, groups)
-    type = service_form.type
     if service_form.validate_on_submit():
-        if type == 'group':
-            task_id = service_form.task.data
-            server_ids = service_form.group.data
-            res = distribute_execute(task_id, server_ids.split(','))
-            return {'celery_task_id': res.task_id}
-        else:
-            task_id = service_form.task.data
-            server_id = service_form.server.data
-            res = distribute_execute(task_id, [server_id])
-            return {'celery_task_id': res.task_id}
+        task_id = service_form.task.data
+        server_ids = service_form.group.data
+        res = distribute_execute(task_id, server_ids.split(','))
+        return {'celery_task_id': res.id}
 
 
 @bp.route('/monitor_task', methods=('POST',))
 def monitor_task():
     celery_task_id = request.form['celery_task_id']
     print(f'{celery_task_id}===========================')
-    res = AsyncResult(celery_task_id, app=celeryApp.app)
-    if res.status == states.FAILURE:
-        post = {'status': res.status, 'traceback': res.traceback}
-    elif res.status == states.SUCCESS:
-        post = {'status': res.status, 'exit_code': res.result['exit_code'],
-                'stdout': res.result['stdout'], 'stderr': res.result['stderr']}
-    else:
-        post = {'status': res.status, 'result': res.result}
-    return post
+    post = list(__generate_task_result(GroupResult.restore(celery_task_id, app=celeryApp.app)))
+    return {'results': post}
 
 
-def _generate_env_command(env):
-    print(env)
+def __generate_task_result(res: GroupResult):
+    for result in res.results:
+        if result.status == states.FAILURE:
+            post = {'status': result.status, 'traceback': result.traceback}
+        elif result.status == states.SUCCESS:
+            post = {'status': result.status, 'exit_code': result.result['exit_code'],
+                    'stdout': result.result['stdout'], 'stderr': result.result['stderr']}
+        else:
+            post = {'status': result.status, 'result': result.result}
+        yield post
+
+
+def __generate_env_command(env):
     for key in env:
         yield f'export {key}={env[key]}'
+
+
+def __generate_task_env(task, query_servers):
+    for query_server in query_servers:
+        server = Server(query_server['ip'], query_server['port'], query_server['user'], query_server['password'])
+        env_conf = load_config(task['env'])[query_server['ip']]
+        env_command = ' && '.join(list(__generate_env_command(env_conf)))
+        yield {'server': server, 'env_conf': env_conf, 'env_command': env_command}
 
 
 def distribute_execute(task_id, server_ids):
     ids = ''
     for id in server_ids:
-        ids = ids+f"'{id},'"
+        ids = ids + f"{id},"
     ids = ids[:-1]
     task = db.query_db('select name, command, env, script from tasks where id = ?', (task_id,), one=True)
-    query_servers = db.query_db('select ip,port,user,password from servers where id in ( ? )', (ids,))
+    query_servers = db.query_db(f'select ip,port,user,password from servers where id in ( {ids} )')
+    print(task)
+    print(query_servers)
     if task is None or query_servers is None:
         return None
     else:
-        for query_server in query_servers:
-            server = Server(query_server['ip'], query_server['port'], query_server['user'], query_server['password'])
-            env_conf = load_config(task['env'])[query_server['ip']]
-            print(env_conf)
-            env_command = ' && '.join(list(_generate_env_command(env_conf)))
-            from neat.src.service.tasks import exe_script
-            res: AsyncResult = exe_script.delay(server, env_command, task['script'], task['command'])
-            return res
+        from neat.src.service.tasks import exe_script
+        print(list(__generate_task_env(task, query_servers)))
+        g: GroupResult = group(exe_script.s(task['script'], task['command'], task_env['server'], task_env['env_command'])
+                               for task_env in list(__generate_task_env(task, query_servers)))()
+        print(celeryApp.app.backend)
+        g.save(backend=celeryApp.app.backend)
+        return g
 
 
 @bp.route('/create_task', methods=('POST', 'GET'))

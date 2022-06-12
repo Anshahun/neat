@@ -32,13 +32,15 @@ def scp_env(ip, local_path, remote_path):
 
 
 @app.task(base=SshClientTask, bind=True)
-def exe_script(self: Task, server, env_command, resources, run_command):
-    self.update_state(state='PROGRESS', meta={'progress': f'connecting to {server.ip} ...'})
+def exe_script(self: Task, resources, run_command, server, env_command):
+    self.update_state(state='PROGRESS', meta={'progress': f'[{server.ip}] connecting to {server.ip} ...'})
     client: SshClient = exe_script.client(server)
-    self.update_state(state='PROGRESS', meta={'progress': f'scp {resources} to {neat.remote_workspace} ...'})
+    self.update_state(state='PROGRESS', meta={'progress': f'[{server.ip}] scp {resources} to {neat.remote_workspace} ...'})
     client.scp(resources, f'{neat.remote_workspace}')
-    self.update_state(state='PROGRESS', meta={'progress': f'run command {env_command} && cd {neat.remote_workspace} && {run_command}'})
+    self.update_state(state='PROGRESS', meta={'progress': f'[{server.ip}] run command: {env_command} && cd {neat.remote_workspace} '
+                                                          f'&& {run_command}'})
     exit_code, stdout, stderr = client.command(f'{env_command} && cd {neat.remote_workspace} && {run_command}')
+    exit_code = f'[{server.ip}] {exit_code}'
     return {'exit_code': exit_code, 'stdout': stdout, 'stderr': stderr}
 
 
@@ -52,4 +54,5 @@ def hello(self, a, b):
     logger.info('bcd')
     self.update_state(state="PROGRESS", meta={'progress': 90})
     time.sleep(1)
-    return 1, 4, 8
+    print(f"a: {a},b: {b}")
+    return a+b
