@@ -27,7 +27,7 @@ create table if not exists tasks(
 );
 
 insert into servers(ip,port,user,password,position) values ('192.168.28.131',22,'breath','naxiehuaer','test');
-insert into servers(ip,port,user,password,position) values ('172.16.135.184',22,'breath','naxiehuaer','test');
+insert into servers(ip,port,user,password,position) values ('192.168.28.132',22,'breath','naxiehuaer','test');
 
 insert into groups(name, server_id) values ('group1', 1);
 insert into groups(name, server_id) values ('group1', 2);

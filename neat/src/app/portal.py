@@ -21,20 +21,27 @@ def index():
     return render_template('index.html', form=service_form, tasks=tasks)
 
 
-@bp.route('/submit_task', methods=('POST', ))
+@bp.route('/submit_task', methods=('POST',))
 def submit_task():
     tasks = db.query_db('select id, name, notes from tasks')
     servers = db.query_db('select id, ip from servers')
     groups = db.query_db('select name,group_concat(server_id) as member from groups group by name order by name')
     service_form = form.get_service_form(tasks, servers, groups)
+    type = service_form.type
     if service_form.validate_on_submit():
-        task_id = service_form.task.data
-        server_id = service_form.server.data
-        res = distribute_execute(task_id, server_id)
-        return {'celery_task_id': res.task_id}
+        if type == 'group':
+            task_id = service_form.task.data
+            server_ids = service_form.group.data
+            res = distribute_execute(task_id, server_ids.split(','))
+            return {'celery_task_id': res.task_id}
+        else:
+            task_id = service_form.task.data
+            server_id = service_form.server.data
+            res = distribute_execute(task_id, [server_id])
+            return {'celery_task_id': res.task_id}
 
 
-@bp.route('/monitor_task', methods=('POST', ))
+@bp.route('/monitor_task', methods=('POST',))
 def monitor_task():
     celery_task_id = request.form['celery_task_id']
     print(f'{celery_task_id}===========================')
@@ -43,7 +50,7 @@ def monitor_task():
         post = {'status': res.status, 'traceback': res.traceback}
     elif res.status == states.SUCCESS:
         post = {'status': res.status, 'exit_code': res.result['exit_code'],
-                'stdout':res.result['stdout'], 'stderr': res.result['stderr']}
+                'stdout': res.result['stdout'], 'stderr': res.result['stderr']}
     else:
         post = {'status': res.status, 'result': res.result}
     return post
@@ -55,19 +62,24 @@ def _generate_env_command(env):
         yield f'export {key}={env[key]}'
 
 
-def distribute_execute(task_id, server_id):
+def distribute_execute(task_id, server_ids):
+    ids = ''
+    for id in server_ids:
+        ids = ids+f"'{id},'"
+    ids = ids[:-1]
     task = db.query_db('select name, command, env, script from tasks where id = ?', (task_id,), one=True)
-    query_server = db.query_db('select ip,port,user,password from servers where id = ?', (server_id,), one=True)
-    if task is None or query_server is None:
+    query_servers = db.query_db('select ip,port,user,password from servers where id in ( ? )', (ids,))
+    if task is None or query_servers is None:
         return None
     else:
-        server = Server(query_server['ip'], query_server['port'], query_server['user'], query_server['password'])
-        env_conf = load_config(task['env'])[query_server['ip']]
-        print(env_conf)
-        env_command = ' && '.join(list(_generate_env_command(env_conf)))
-        from neat.src.service.tasks import exe_script
-        res: AsyncResult = exe_script.delay(server, env_command, task['script'], task['command'])
-        return res
+        for query_server in query_servers:
+            server = Server(query_server['ip'], query_server['port'], query_server['user'], query_server['password'])
+            env_conf = load_config(task['env'])[query_server['ip']]
+            print(env_conf)
+            env_command = ' && '.join(list(_generate_env_command(env_conf)))
+            from neat.src.service.tasks import exe_script
+            res: AsyncResult = exe_script.delay(server, env_command, task['script'], task['command'])
+            return res
 
 
 @bp.route('/create_task', methods=('POST', 'GET'))
