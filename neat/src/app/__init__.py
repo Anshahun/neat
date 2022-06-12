@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+
 from neat.src.app import db
 
 app = Flask(__name__, instance_relative_config=True)

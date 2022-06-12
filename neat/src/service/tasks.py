@@ -3,10 +3,9 @@ from logging import Logger
 
 from celery import Task
 from celery.utils.log import get_task_logger
-from paramiko.channel import ChannelStderrFile, ChannelFile
 
 import neat
-from neat.src.service.celeryApp import app
+from neat.src.service import app
 from neat.src.service.sshclient import SshClient
 from neat.src.service.sshclientTask import SshClientTask
 

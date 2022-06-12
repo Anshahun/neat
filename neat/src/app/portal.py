@@ -1,13 +1,14 @@
 from celery import states
-from celery.canvas import Signature, group
-from celery.result import AsyncResult, GroupResult
+from celery.canvas import group
+from celery.result import GroupResult
 from flask import Blueprint, render_template, request, redirect, url_for
 from werkzeug.utils import secure_filename
+
 from neat.src.app import db
 from neat.src.app.moudles import ServiceTask, Server
 from neat.src.app.validate import form
 from neat.src.app.validate.form import TaskForm
-from neat.src.service import celeryApp
+from neat.src.service import app
 from neat.src.service.startup import load_config
 
 bp = Blueprint('portal', __name__)
@@ -39,7 +40,7 @@ def submit_task():
 def monitor_task():
     celery_task_id = request.form['celery_task_id']
     print(f'{celery_task_id}===========================')
-    post = list(__generate_task_result(GroupResult.restore(celery_task_id, app=celeryApp.app)))
+    post = list(__generate_task_result(GroupResult.restore(celery_task_id, app=app)))
     return {'results': post}
 
 
@@ -80,12 +81,11 @@ def distribute_execute(task_id, server_ids):
     if task is None or query_servers is None:
         return None
     else:
-        from neat.src.service.tasks import exe_script
+        from neat import exe_script
         print(list(__generate_task_env(task, query_servers)))
         g: GroupResult = group(exe_script.s(task['script'], task['command'], task_env['server'], task_env['env_command'])
                                for task_env in list(__generate_task_env(task, query_servers)))()
-        print(celeryApp.app.backend)
-        g.save(backend=celeryApp.app.backend)
+        g.save(backend=app)
         return g
 
 

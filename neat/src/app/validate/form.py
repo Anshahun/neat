@@ -1,10 +1,10 @@
-from flask import current_app
 from flask_wtf import FlaskForm
-from typing import List
-from wtforms import BooleanField, StringField, PasswordField, validators, FileField, ValidationError, \
-    TextAreaField, MultipleFileField, SelectField, RadioField
-from neat.src.app import db
+from wtforms import StringField, validators, FileField, ValidationError, \
+    TextAreaField, SelectField, RadioField
+
 from flask_wtf.file import FileRequired, FileAllowed
+
+from neat.src.app import db
 
 
 class UniqueName(object):

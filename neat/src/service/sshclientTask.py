@@ -1,9 +1,11 @@
 import celery
-from neat.src.service.sshclient import SshClient
-from neat.src.app.moudles import Server
 
 
 # TODO client超时自动关闭
+from neat.src.app.moudles import Server
+from neat.src.service.sshclient import SshClient
+
+
 class SshClientTask(celery.Task):
     autoretry_for = (Exception,)
     max_retries = 3
@@ -18,7 +20,7 @@ class SshClientTask(celery.Task):
 
     _client_dict = {}
 
-    def _get_sshclient(self, host, port, user, password):
+    def __get_sshclient(self, host, port, user, password):
         client = SshClient(host, port, user, password)
         return client
 

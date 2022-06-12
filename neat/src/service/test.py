@@ -1,17 +1,6 @@
-import time
+from celery import group
+from celery.result import GroupResult
 
-from celery import group, Task
-from celery.backends.base import BaseBackend
-from celery.canvas import Signature
-from celery.result import AsyncResult, GroupResult
-import celery
-
-from neat.src.app import moudles
-from neat.src.app.portal import __generate_task_result
-from neat.src.service import tasks, celeryApp
-import json
-
-from neat.src.service.tasks import command
 
 l = {}
 
@@ -30,7 +19,7 @@ if __name__ == '__main__':
     # t:AsyncResult = tasks.hello.delay(2,2)
     li = [1,2,3]
     j=2
-    g:GroupResult = group(tasks.hello.s(i['i'], j) for i in list(test(li)))()
+    #g:GroupResult = group(tasks.hello.s(i['i'], j) for i in list(test(li)))()
 
     # g.get(on_message=on_raw_message, propagate=False)
     # tinfo:list = l[r.id]
@@ -49,5 +38,5 @@ if __name__ == '__main__':
     # list(test(li))
     #print(res)
     #g.get(on_message=on_raw_message, propagate=False)
-    post = list(__generate_task_result(GroupResult.restore('6817a88b-dabb-448e-9474-496fad9df979', app=celeryApp.app)))
-    print(post)
+    #post = list(__generate_task_result(GroupResult.restore('6817a88b-dabb-448e-9474-496fad9df979', app=celeryApp.app)))
+    #print(post)
