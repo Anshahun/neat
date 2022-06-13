@@ -1,5 +1,4 @@
 import os
-
 from celery import Celery
 from flask import Flask
 from neat.src.app import db
@@ -27,6 +26,7 @@ from neat.src.app import portal
 flask_app.register_blueprint(portal.bp)
 
 celery_app = Celery()
-celery_app.conf.update(flask_app.config)
+celery_app.config_from_object(f'neat.conf.config')
+print(flask_app.config)
 
 

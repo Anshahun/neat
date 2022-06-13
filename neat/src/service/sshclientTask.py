@@ -26,6 +26,6 @@ class SshClientTask(celery.Task):
 
     def client(self, server: Server):
         if self._client_dict.get(server.ip) is None:
-            self._client_dict[server.ip] = self._get_sshclient(server.ip, server.port, server.user,
+            self._client_dict[server.ip] = self.__get_sshclient(server.ip, server.port, server.user,
                                                                server.password)
         return self._client_dict.get(server.ip)

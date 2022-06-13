@@ -35,8 +35,8 @@ insert into groups(name, server_id) values ('group2', 1);
 
 
 insert into tasks(name, command, env, script, notes) values ('echo','sh test1.sh',
-'/Users/breath/PycharmProjects/neat/neat/src/app/tasks/echo/env/echo.yaml',
-'/Users/breath/PycharmProjects/neat/neat/src/app/tasks/echo/bin/test1.sh', 'for test');
+'/Users/breath/PycharmProjects/neat/neat/tasks/echo/env/echo.yaml',
+'/Users/breath/PycharmProjects/neat/neat/tasks/echo/bin/test1.sh', 'for test');
 
 
 

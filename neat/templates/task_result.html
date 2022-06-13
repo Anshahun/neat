@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  result
+{% endblock %}
+
+{% block content %}
+<h3>Task {{ execute_id }}</h3>
+<body style="max-width: 65em;">
+  <div>
+  <pre>
+    <code id="result"></code>
+  </pre>
+</div>
+</body>
+
+{% endblock %}
+
+{% block script %}
+<script>
+  function autoPlay(){
+    time = setInterval(function(){
+      $.ajax({
+        url: {{ url_for('portal.monitor_task')|tojson }},
+        data: {"celery_task_id": "{{ execute_id }}"},
+        type: "POST",
+        success: function(obj){
+          for (result of obj.results){
+            if (result.status=="SUCCESS"){
+              $('#result').append("task-status: <font color='green'>"+result.status+"</font></br>");
+              $('#result').append("exit_code: "+result.exit_code+"</br>")
+              $('#result').append("stdout: "+result.stdout+"</br>")
+              $('#result').append("stderr: "+result.stderr+"</br>")
+              clearInterval(time), function(){
+  　　            autoPlay();
+  　　           }
+            }else if(result.status=='FAILURE'){
+              $('#result').append("task-status: <font color='red'>"+result.status+"</font></br>");
+              $('#result').append("traceback: "+result.traceback+"</br>")
+              clearInterval(time),function(){
+  　　            autoPlay();
+  　　           }　　
+            }else{
+              $('#result').append("task-status: <font color='blue'>"+result.status+"</font></br>");
+              $('#result').append("result: "+result.result.progress+"</br>")
+            }
+          }
+        }
+      })
+    },5000
+    );
+  }
+
+  autoPlay()
+</script>
+
+{% endblock %}
