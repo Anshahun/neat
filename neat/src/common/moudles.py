@@ -1,7 +1,5 @@
 import os
-
-from neat.src.app import tasks_folder
-
+from neat import tasks_folder
 
 
 class ServiceTask(object):

@@ -2,7 +2,7 @@ import celery
 
 
 # TODO client超时自动关闭
-from neat.src.app.moudles import Server
+from neat.src.common.moudles import Server
 from neat.src.service.sshclient import SshClient
 
 

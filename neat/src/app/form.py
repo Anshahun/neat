@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, validators, FileField, ValidationError, \
     TextAreaField, SelectField, RadioField
-
 from flask_wtf.file import FileRequired, FileAllowed
 
 from neat.src.app import db
@@ -33,5 +32,6 @@ def get_service_form(query_tasks, query_servers, query_groups):
         task = SelectField('任务', choices=list(generate_choice(query_tasks, 'id', 'name')))
         server = SelectField('服务器', choices=list(generate_choice(query_servers, 'id', 'ip')))
         group = SelectField('服务器组', choices=list(generate_choice(query_groups, 'member', 'name')))
-        type = RadioField('执行方式', choices=[('single', 'single'), ('group', 'group')], render_kw={'style' :"display:inline;"})
+        type = RadioField('执行方式', choices=[('single', 'single'), ('group', 'group')],
+                          render_kw={'style': "display:inline;"}, validators=[validators.DataRequired()])
     return ServiceForm()
