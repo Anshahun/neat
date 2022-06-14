@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "neat"
+version = "0.1.0"
+description = "automation ops platform"
+authors = ["liujinyi <liujinyi@iie.ac.cn>"]
+exclude = ["neat/tasks/"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Flask = "^2.1.2"
+celery = {extras = ["redis"], version = "^5.2.7"}
+PyYAML = "^6.0"
+Flask-WTF = "^1.0.1"
+paramiko = "^2.11.0"
+scp = "^0.14.4"
+
+[tool.poetry.dev-dependencies]
+coverage = {extras = ["toml"], version = "^6.4.1"}
+pytest = "^7.1.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+#附加参数
+addopts = "-ra -q"
+testpaths = ["neat/tests"]
+
+[tool.coverage.run]
+#如果covrage report 没有包含全部文件，可能是缺失文件一行代码都没有执行
+include = ["neat/src/*"]
+
+#[tool.coverage.report]
+#fail_under = 100
+
