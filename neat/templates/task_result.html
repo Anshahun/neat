@@ -38,14 +38,17 @@
           clearInterval(kv[execute_id]);
         }else{
           $('#result').append("task-status: <font color='blue'>"+result.status+"</font></br>");
-          $('#result').append("result: "+result.result.progress+"</br>");
+          $.each(result.result,function(i,n){
+            $('#result').append(i+": "+n+"</br>");
+            console.log(n);
+          });
         }
       }
     })
   }
 
   {% for execute_id in execute_ids %}
-    id = setInterval(monitor_task, 5000, "{{ execute_id }}");
+    id = setInterval(monitor_task, 2000, "{{ execute_id }}");
     kv['{{ execute_id }}'] = id
   {% endfor %}
 </script>

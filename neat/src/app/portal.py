@@ -37,6 +37,7 @@ def monitor_task():
     from neat import celery_app
     result = AsyncResult(execute_id, app=celery_app)
     post = __generate_task_result(result)
+    print(post)
     return post
 
 
