@@ -1,10 +1,37 @@
 # neat
-**neat** is a automation ops platform. devlope on pythpn
+**neat**是一个自动化运维平台
 
+**neat**基于python开发，集成web页面，使批量任务执行更加简单
 
-### Features
+## Features
 
-### Install
+## Install
+### require
+- redis (默认地址：127.0.0.1:6379)
+- python 3.8+
+### platform
+- Linux
+  1. 安装venv
+  ```shell
+  python -m venv venv
+  source venv/bin/activate
+  ```
+  2. 安装neat
+  ```shell
+  pip install neat-0.1.0-py3-none-any.whl
+  ```
+  3. 启动flask
+  ```shell
+  export FLASK_APP=neat
+  flask init-db
+  flask run
+  ```
+  4.启动celery
+  ```shell
+  celery -A neat worker -l INFO
+  ```
+安装完成后，浏览器访问[http://127.0.0.1:5000](http://127.0.0.1:5000),
+创建并提交你的第一个任务吧
 
 ## Dependency
 ### web application framework
