@@ -9,7 +9,9 @@
 {% endblock %}
 
 {% block content %}
-  <a href="{{ url_for('portal.create_task') }}" >添加任务</a>
+  <p>
+    <a href="{{ url_for('portal.create_task') }}" >添加任务</a>
+  </p>
 
   {% from "_formhelpers.html" import render_field %}
   <form method="post" id="service_form" >

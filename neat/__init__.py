@@ -27,6 +27,5 @@ flask_app.register_blueprint(portal.bp)
 
 celery_app = Celery()
 celery_app.config_from_object(f'neat.conf.config')
-print(flask_app.config)
 
 

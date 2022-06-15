@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<h3>Task {{ execute_id }}</h3>
+<h3>Task Result</h3>
 <body style="max-width: 65em;">
   <div>
   <pre>
@@ -18,40 +18,36 @@
 
 {% block script %}
 <script>
-  function autoPlay(){
-    time = setInterval(function(){
-      $.ajax({
-        url: {{ url_for('portal.monitor_task')|tojson }},
-        data: {"celery_task_id": "{{ execute_id }}"},
-        type: "POST",
-        success: function(obj){
-          for (result of obj.results){
-            if (result.status=="SUCCESS"){
-              $('#result').append("task-status: <font color='green'>"+result.status+"</font></br>");
-              $('#result').append("exit_code: "+result.exit_code+"</br>")
-              $('#result').append("stdout: "+result.stdout+"</br>")
-              $('#result').append("stderr: "+result.stderr+"</br>")
-              clearInterval(time), function(){
-  　　            autoPlay();
-  　　           }
-            }else if(result.status=='FAILURE'){
-              $('#result').append("task-status: <font color='red'>"+result.status+"</font></br>");
-              $('#result').append("traceback: "+result.traceback+"</br>")
-              clearInterval(time),function(){
-  　　            autoPlay();
-  　　           }　　
-            }else{
-              $('#result').append("task-status: <font color='blue'>"+result.status+"</font></br>");
-              $('#result').append("result: "+result.result.progress+"</br>")
-            }
-          }
+  var kv = {}
+
+  function monitor_task(execute_id){
+    $.ajax({
+      url: {{ url_for('portal.monitor_task')|tojson }},
+      data: {"execute_id": execute_id},
+      type: "POST",
+      success: function(result){
+        if (result.status=="SUCCESS"){
+          $('#result').append("task-status: <font color='green'>"+result.status+"</font></br>");
+          $('#result').append("exit_code: "+result.exit_code+"</br>");
+          $('#result').append("stdout: "+result.stdout+"</br>");
+          $('#result').append("stderr: "+result.stderr+"</br>");
+          clearInterval(kv[execute_id]);
+        }else if(result.status=='FAILURE'){
+          $('#result').append("task-status: <font color='red'>"+result.status+"</font></br>");
+          $('#result').append("traceback: "+result.traceback+"</br>");
+          clearInterval(kv[execute_id]);
+        }else{
+          $('#result').append("task-status: <font color='blue'>"+result.status+"</font></br>");
+          $('#result').append("result: "+result.result.progress+"</br>");
         }
-      })
-    },5000
-    );
+      }
+    })
   }
 
-  autoPlay()
+  {% for execute_id in execute_ids %}
+    id = setInterval(monitor_task, 5000, "{{ execute_id }}");
+    kv['{{ execute_id }}'] = id
+  {% endfor %}
 </script>
 
 {% endblock %}
