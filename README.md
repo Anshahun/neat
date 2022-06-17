@@ -1,5 +1,5 @@
 # neat
-**neat**是一个自动化运维平台
+**neat**是一个[自动化运维](automation_ops.md)平台
 
 **neat**基于python开发，集成web页面，使批量任务执行更加简单
 
